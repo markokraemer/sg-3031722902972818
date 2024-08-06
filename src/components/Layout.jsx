@@ -1,14 +1,9 @@
-import { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search } from 'lucide-react';
 
 export default function Layout({ children }) {
   const { data: session } = useSession();
-  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -17,30 +12,12 @@ export default function Layout({ children }) {
           <Link href="/" className="text-2xl font-bold text-primary">
             AITube
           </Link>
-          <div className="flex-1 max-w-xl mx-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search videos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            </div>
-          </div>
           <nav className="flex items-center space-x-4">
             <Link href="/create" className="text-gray-600 hover:text-primary">
               Create
             </Link>
             {session ? (
-              <div className="flex items-center space-x-4">
-                <Avatar>
-                  <AvatarImage src={session.user.image} alt={session.user.name} />
-                  <AvatarFallback>{session.user.name[0]}</AvatarFallback>
-                </Avatar>
-                <Button onClick={() => signOut()} variant="outline">Sign out</Button>
-              </div>
+              <Button onClick={() => signOut()} variant="outline">Sign out</Button>
             ) : (
               <Button onClick={() => signIn('google')}>Sign in</Button>
             )}

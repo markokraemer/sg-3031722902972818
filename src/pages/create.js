@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import VideoPlayer from '@/components/VideoPlayer';
 
 const formSchema = z.object({
   prompt: z.string().min(10, { message: "Prompt must be at least 10 characters long" }),
@@ -16,12 +15,10 @@ const formSchema = z.object({
   genre: z.string().min(1, { message: "Please select a genre" }),
   title: z.string().min(3, { message: "Title must be at least 3 characters long" }),
   description: z.string().min(10, { message: "Description must be at least 10 characters long" }),
-  thumbnail: z.instanceof(FileList).refine((files) => files.length > 0, "Thumbnail is required"),
 });
 
 export default function CreateVideo() {
   const [generatedVideo, setGeneratedVideo] = useState(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -30,7 +27,6 @@ export default function CreateVideo() {
       genre: "",
       title: "",
       description: "",
-      thumbnail: undefined,
     },
   });
 
@@ -41,16 +37,9 @@ export default function CreateVideo() {
     setTimeout(() => {
       setGeneratedVideo({
         url: "https://example.com/generated-video.mp4",
-        thumbnail: URL.createObjectURL(data.thumbnail[0]),
+        thumbnail: "https://picsum.photos/300/200",
       });
     }, 2000);
-  };
-
-  const handleThumbnailChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setThumbnailPreview(URL.createObjectURL(file));
-    }
   };
 
   return (
@@ -121,7 +110,7 @@ export default function CreateVideo() {
             <CardTitle>Generated Video</CardTitle>
           </CardHeader>
           <CardContent>
-            <VideoPlayer src={generatedVideo.url} />
+            <video src={generatedVideo.url} controls className="w-full" />
             <FormField
               control={form.control}
               name="title"
@@ -144,30 +133,6 @@ export default function CreateVideo() {
                   <FormControl>
                     <Textarea placeholder="Enter video description" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="thumbnail"
-              render={({ field: { onChange, value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>Thumbnail</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        onChange(e.target.files);
-                        handleThumbnailChange(e);
-                      }}
-                      {...rest}
-                    />
-                  </FormControl>
-                  {thumbnailPreview && (
-                    <img src={thumbnailPreview} alt="Thumbnail preview" className="mt-2 max-w-full h-auto" />
-                  )}
                   <FormMessage />
                 </FormItem>
               )}

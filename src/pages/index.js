@@ -20,9 +20,11 @@ export default function Home() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
+        console.log('Fetching videos...');
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
         setVideos(mockVideos);
+        console.log('Videos fetched successfully:', mockVideos);
       } catch (err) {
         console.error('Error fetching videos:', err);
         setError(err);
@@ -35,17 +37,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    console.log('Filtering videos with query:', searchQuery);
     const filteredVideos = mockVideos.filter(video =>
       video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       video.creator.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setVideos(filteredVideos);
+    console.log('Filtered videos:', filteredVideos);
   }, [searchQuery]);
 
   if (error) {
+    console.error('Rendering error state:', error);
     return <div className="text-center text-red-500">Error: {error.message}</div>;
   }
 
+  console.log('Rendering Home component');
   return (
     <div className="space-y-8">
       <h1 className="text-4xl font-bold">Welcome to AITube</h1>
