@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import Link from 'next/link';
+import Link from 'next/link'
 
 export default function Custom404() {
   return (
@@ -7,8 +6,10 @@ export default function Custom404() {
       <h1 className="text-4xl font-bold mb-4">404 - Page Not Found</h1>
       <p className="text-xl mb-8">Oops! The page you're looking for doesn't exist.</p>
       <Link href="/">
-        <Button>Return to Home</Button>
+        <a className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Return to Home
+        </a>
       </Link>
     </div>
-  );
+  )
 }
