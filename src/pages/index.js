@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -88,7 +89,9 @@ export default function Home() {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button variant="outline">Watch Now</Button>
+                <Link href={`/watch/${video.id}`}>
+                  <Button variant="outline">Watch Now</Button>
+                </Link>
                 <Button variant="ghost" size="sm">Subscribe</Button>
               </CardFooter>
             </Card>

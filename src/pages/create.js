@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,6 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 const formSchema = z.object({
   prompt: z.string().min(10, { message: "Prompt must be at least 10 characters long" }),
@@ -19,6 +22,7 @@ const formSchema = z.object({
 
 export default function CreateVideo() {
   const [generatedVideo, setGeneratedVideo] = useState(null);
+  const [clientSecret, setClientSecret] = useState("");
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -30,6 +34,17 @@ export default function CreateVideo() {
     },
   });
 
+  useEffect(() => {
+    // Create PaymentIntent as soon as the page loads
+    fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: 10 }), // $10 for video creation
+    })
+      .then((res) => res.json())
+      .then((data) => setClientSecret(data.clientSecret));
+  }, []);
+
   const onSubmit = async (data) => {
     console.log(data);
     // Here you would typically send the data to your AI video generation API
@@ -40,6 +55,22 @@ export default function CreateVideo() {
         thumbnail: "https://picsum.photos/300/200",
       });
     }, 2000);
+  };
+
+  const handlePayment = async () => {
+    const stripe = await stripePromise;
+    const { error } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+      },
+    });
+
+    if (error) {
+      console.log(error);
+    } else {
+      // Payment succeeded, proceed with video creation
+      onSubmit(form.getValues());
+    }
   };
 
   return (
@@ -100,7 +131,7 @@ export default function CreateVideo() {
               </FormItem>
             )}
           />
-          <Button type="submit">Generate Video</Button>
+          <Button type="submit">Generate Video ($10)</Button>
         </form>
       </Form>
 
@@ -139,7 +170,7 @@ export default function CreateVideo() {
             />
           </CardContent>
           <CardFooter>
-            <Button>Upload Video</Button>
+            <Button onClick={handlePayment}>Pay and Upload Video</Button>
           </CardFooter>
         </Card>
       )}
