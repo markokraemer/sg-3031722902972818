@@ -5,9 +5,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
+      console.log('Creating payment intent...');
       const { amount } = req.body;
 
       if (!amount || isNaN(amount)) {
+        console.error('Invalid amount:', amount);
         return res.status(400).json({ error: 'Invalid amount' });
       }
 
@@ -22,6 +24,7 @@ export default async function handler(req, res) {
         currency: 'usd',
       });
 
+      console.log('Payment intent created successfully:', paymentIntent.id);
       res.status(200).json({ clientSecret: paymentIntent.client_secret });
     } catch (err) {
       console.error('Error creating payment intent:', err);
