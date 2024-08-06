@@ -2,20 +2,11 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-
-let prisma;
-
-try {
-  prisma = new PrismaClient();
-} catch (error) {
-  console.error('Failed to initialize Prisma client:', error);
-  prisma = null;
-}
+import prisma from '@/lib/prisma';
 
 export default NextAuth({
-  adapter: prisma ? PrismaAdapter(prisma) : undefined,
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -28,9 +19,6 @@ export default NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!prisma) {
-          throw new Error('Database connection failed');
-        }
         try {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email }
