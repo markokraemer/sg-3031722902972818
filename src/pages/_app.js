@@ -34,13 +34,21 @@ export default function App({ Component, pageProps: { session, ...pageProps } })
   useEffect(() => {
     async function checkServerStatus() {
       try {
+        const startTime = Date.now();
         const res = await fetch('/api/health');
-        const data = await res.json();
-        console.log('Server health check:', data);
-        setServerStatus(data.status);
+        const endTime = Date.now();
+        const responseTime = endTime - startTime;
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log('Server health check:', data);
+          setServerStatus({ ...data, responseTime });
+        } else {
+          throw new Error(`Server responded with status: ${res.status}`);
+        }
       } catch (error) {
         console.error('Error checking server status:', error);
-        setServerStatus('Error');
+        setServerStatus({ status: 'Error', message: error.message });
       } finally {
         setIsLoading(false);
       }
@@ -53,12 +61,12 @@ export default function App({ Component, pageProps: { session, ...pageProps } })
     return <LoadingFallback />;
   }
 
-  if (serverStatus !== 'OK') {
+  if (serverStatus?.status !== 'OK') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <h1 className="text-4xl font-bold mb-4">Server Error</h1>
         <p className="text-xl mb-8">Unable to connect to the server. Please try again later.</p>
-        <p>Status: {serverStatus}</p>
+        <p>Status: {JSON.stringify(serverStatus)}</p>
       </div>
     );
   }

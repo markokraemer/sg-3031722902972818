@@ -18,6 +18,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Stripe secret key is not configured' });
       }
 
+      console.log('Stripe secret key:', process.env.STRIPE_SECRET_KEY.substring(0, 8) + '...');
+
       // Create a PaymentIntent with the order amount and currency
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Stripe expects the amount in cents
@@ -30,8 +32,10 @@ export default async function handler(req, res) {
       console.error('Error creating payment intent:', err);
       if (err.type === 'StripeAuthenticationError') {
         res.status(401).json({ error: 'Authentication with Stripe failed. Please check your Stripe secret key.' });
+      } else if (err.type === 'StripeConnectionError') {
+        res.status(503).json({ error: 'Unable to connect to Stripe. Please try again later.' });
       } else {
-        res.status(500).json({ error: 'Error creating payment intent', details: err.message });
+        res.status(500).json({ error: 'Error creating payment intent', details: err.message, type: err.type });
       }
     }
   } else {

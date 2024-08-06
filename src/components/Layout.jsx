@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
+import SubscriptionsTab from './SubscriptionsTab';
 
 export default function Layout({ children }) {
   const { data: session } = useSession();
@@ -24,15 +25,22 @@ export default function Layout({ children }) {
                 <Button onClick={() => signOut()} variant="outline">Sign out</Button>
               </>
             ) : (
-              <Link href="/signin">
-                <Button>Sign in</Button>
-              </Link>
+              <Button onClick={() => signIn('google')}>Sign in with Google</Button>
             )}
           </nav>
         </div>
       </header>
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+        <div className="flex">
+          {session && (
+            <aside className="w-64 mr-8">
+              <SubscriptionsTab />
+            </aside>
+          )}
+          <div className="flex-grow">
+            {children}
+          </div>
+        </div>
       </main>
       <footer className="bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-gray-600">
