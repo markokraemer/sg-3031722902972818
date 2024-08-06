@@ -27,7 +27,6 @@ export default NextAuth({
           if (user && await bcrypt.compare(credentials.password, user.password)) {
             return { id: user.id, name: user.name, email: user.email };
           } else {
-            console.log('Invalid email or password');
             return null;
           }
         } catch (error) {
@@ -56,15 +55,4 @@ export default NextAuth({
     signIn: '/signin',
   },
   debug: process.env.NODE_ENV === 'development',
-  logger: {
-    error(code, metadata) {
-      console.error(code, metadata);
-    },
-    warn(code) {
-      console.warn(code);
-    },
-    debug(code, metadata) {
-      console.debug(code, metadata);
-    },
-  },
 });

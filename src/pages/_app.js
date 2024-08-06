@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes';
 import { Toaster } from "@/components/ui/toaster";
 import Layout from '@/components/Layout';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useState, useEffect } from 'react';
 
 function ErrorFallback({ error }) {
   console.error('Uncaught error:', error);
@@ -18,7 +19,25 @@ function ErrorFallback({ error }) {
   );
 }
 
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+    </div>
+  );
+}
+
 export default function App({ Component, pageProps: { session, ...pageProps } }) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingFallback />;
+  }
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <SessionProvider session={session}>
