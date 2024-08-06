@@ -21,13 +21,18 @@ export default NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email }
+          });
 
-        if (user && await bcrypt.compare(credentials.password, user.password)) {
-          return { id: user.id, name: user.name, email: user.email };
-        } else {
+          if (user && await bcrypt.compare(credentials.password, user.password)) {
+            return { id: user.id, name: user.name, email: user.email };
+          } else {
+            return null;
+          }
+        } catch (error) {
+          console.error('Error in authorize function:', error);
           return null;
         }
       }
@@ -51,4 +56,5 @@ export default NextAuth({
   pages: {
     signIn: '/signin',
   },
+  debug: process.env.NODE_ENV === 'development',
 });

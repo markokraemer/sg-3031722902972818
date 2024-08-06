@@ -23,6 +23,7 @@ const formSchema = z.object({
 export default function CreateVideo() {
   const [generatedVideo, setGeneratedVideo] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentError, setPaymentError] = useState(null);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,7 +43,17 @@ export default function CreateVideo() {
       body: JSON.stringify({ amount: 10 }), // $10 for video creation
     })
       .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
+      .then((data) => {
+        if (data.error) {
+          setPaymentError(data.error);
+        } else {
+          setClientSecret(data.clientSecret);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching client secret:', err);
+        setPaymentError('Failed to initialize payment. Please try again.');
+      });
   }, []);
 
   const onSubmit = async (data) => {
@@ -58,6 +69,12 @@ export default function CreateVideo() {
   };
 
   const handlePayment = async () => {
+    if (!stripePromise) {
+      console.error('Stripe has not been initialized');
+      setPaymentError('Payment system is not available. Please try again later.');
+      return;
+    }
+
     const stripe = await stripePromise;
     const { error } = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
@@ -66,12 +83,18 @@ export default function CreateVideo() {
     });
 
     if (error) {
-      console.log(error);
+      console.error('Payment error:', error);
+      setPaymentError(error.message);
     } else {
       // Payment succeeded, proceed with video creation
+      setPaymentError(null);
       onSubmit(form.getValues());
     }
   };
+
+  if (paymentError) {
+    return <div className="text-red-500">{paymentError}</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">

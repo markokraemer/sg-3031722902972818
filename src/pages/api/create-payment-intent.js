@@ -7,15 +7,20 @@ export default async function handler(req, res) {
     try {
       const { amount } = req.body;
 
+      if (!amount || isNaN(amount)) {
+        return res.status(400).json({ error: 'Invalid amount' });
+      }
+
       // Create a PaymentIntent with the order amount and currency
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount * 100, // Stripe expects the amount in cents
+        amount: Math.round(amount * 100), // Stripe expects the amount in cents
         currency: 'usd',
       });
 
       res.status(200).json({ clientSecret: paymentIntent.client_secret });
     } catch (err) {
-      res.status(500).json({ statusCode: 500, message: err.message });
+      console.error('Error creating payment intent:', err);
+      res.status(500).json({ error: 'Error creating payment intent' });
     }
   } else {
     res.setHeader('Allow', 'POST');
