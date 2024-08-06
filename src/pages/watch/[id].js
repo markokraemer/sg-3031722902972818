@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +17,7 @@ export default function WatchPage() {
   const [views, setViews] = useState(0);
   const [upvotes, setUpvotes] = useState(0);
   const [downvotes, setDownvotes] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -26,6 +28,10 @@ export default function WatchPage() {
         title: "Sample TV Show",
         description: "This is a sample TV show description.",
         url: "https://example.com/sample-video.mp4",
+        creator: {
+          id: "creator123",
+          name: "AI Creator",
+        },
       });
       setComments([
         { id: 1, user: "User1", text: "Great video!" },
@@ -52,6 +58,23 @@ export default function WatchPage() {
     }
   };
 
+  const handleSubscribe = async () => {
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ creatorId: video.creator.id }),
+      });
+      if (response.ok) {
+        setIsSubscribed(true);
+      }
+    } catch (error) {
+      console.error('Error subscribing:', error);
+    }
+  };
+
   if (!video) {
     return <div>Loading...</div>;
   }
@@ -66,6 +89,14 @@ export default function WatchPage() {
           <Button onClick={() => handleVote('up')}>👍 {upvotes}</Button>
           <Button onClick={() => handleVote('down')}>👎 {downvotes}</Button>
         </div>
+      </div>
+      <div className="flex justify-between items-center">
+        <Link href={`/profile/${video.creator.id}`}>
+          <a className="text-blue-500 hover:underline">Creator: {video.creator.name}</a>
+        </Link>
+        <Button onClick={handleSubscribe} disabled={isSubscribed}>
+          {isSubscribed ? 'Subscribed' : 'Subscribe'}
+        </Button>
       </div>
       <Card>
         <CardHeader>

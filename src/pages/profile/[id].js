@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const { id } = router.query;
   const [creator, setCreator] = useState(null);
   const [videos, setVideos] = useState([]);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -20,6 +21,7 @@ export default function ProfilePage() {
         name: "AI Creator",
         description: "I create amazing AI-generated content!",
         avatar: "https://picsum.photos/200",
+        subscriberCount: 1000,
       });
       setVideos([
         { id: 1, title: "AI-Generated Sci-Fi Adventure", views: 1500, thumbnail: "https://picsum.photos/300/200" },
@@ -28,6 +30,27 @@ export default function ProfilePage() {
       ]);
     }
   }, [id]);
+
+  const handleSubscribe = async () => {
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ creatorId: id }),
+      });
+      if (response.ok) {
+        setIsSubscribed(true);
+        setCreator(prev => ({
+          ...prev,
+          subscriberCount: prev.subscriberCount + 1
+        }));
+      }
+    } catch (error) {
+      console.error('Error subscribing:', error);
+    }
+  };
 
   if (!creator) {
     return <div>Loading...</div>;
@@ -45,11 +68,14 @@ export default function ProfilePage() {
             <div>
               <CardTitle className="text-2xl">{creator.name}</CardTitle>
               <p className="text-gray-600">{creator.description}</p>
+              <p className="text-sm text-gray-500">{creator.subscriberCount} subscribers</p>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Button>Subscribe</Button>
+          <Button onClick={handleSubscribe} disabled={isSubscribed}>
+            {isSubscribed ? 'Subscribed' : 'Subscribe'}
+          </Button>
         </CardContent>
       </Card>
       <h2 className="text-2xl font-bold">Videos</h2>
