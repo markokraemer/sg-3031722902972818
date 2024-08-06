@@ -18,12 +18,20 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate API call
-    setIsLoading(true);
-    setTimeout(() => {
-      setVideos(mockVideos);
-      setIsLoading(false);
-    }, 1000);
+    const fetchVideos = async () => {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setVideos(mockVideos);
+      } catch (err) {
+        console.error('Error fetching videos:', err);
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVideos();
   }, []);
 
   useEffect(() => {
