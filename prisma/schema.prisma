@@ -19,7 +19,8 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   videos        Video[]
-  subscriptions Channel[]
+  ownedChannels Channel[] @relation("ChannelOwner")
+  subscriptions Channel[] @relation("ChannelSubscribers")
 }
 
 model Video {
@@ -43,8 +44,8 @@ model Channel {
   description   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  owner         User     @relation(fields: [ownerId], references: [id])
+  owner         User     @relation("ChannelOwner", fields: [ownerId], references: [id])
   ownerId       String
-  subscribers   User[]
+  subscribers   User[]   @relation("ChannelSubscribers")
   videos        Video[]
 }

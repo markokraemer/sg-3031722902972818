@@ -7,17 +7,15 @@ import bcrypt from 'bcrypt';
 
 let prisma;
 
-if (process.env.NODE_ENV === 'production') {
+try {
   prisma = new PrismaClient();
-} else {
-  if (!global.prisma) {
-    global.prisma = new PrismaClient();
-  }
-  prisma = global.prisma;
+} catch (error) {
+  console.error('Failed to initialize Prisma client:', error);
+  prisma = null;
 }
 
 export default NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: prisma ? PrismaAdapter(prisma) : undefined,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -30,6 +28,9 @@ export default NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        if (!prisma) {
+          throw new Error('Database connection failed');
+        }
         try {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email }
