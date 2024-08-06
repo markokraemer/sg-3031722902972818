@@ -6,6 +6,7 @@ import Layout from '@/components/Layout';
 import { ErrorBoundary } from 'react-error-boundary';
 
 function ErrorFallback({ error }) {
+  console.error('Uncaught error:', error);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-4xl font-bold mb-4">Oops! Something went wrong.</h1>
