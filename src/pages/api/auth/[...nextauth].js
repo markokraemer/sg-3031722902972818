@@ -15,14 +15,19 @@ export default NextAuth({
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+    async jwt({ token, user, account }) {
+      if (account && user) {
+        return {
+          ...token,
+          accessToken: account.access_token,
+          userId: user.id,
+        };
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id;
+      session.user.id = token.userId;
+      session.accessToken = token.accessToken;
       return session;
     },
   },

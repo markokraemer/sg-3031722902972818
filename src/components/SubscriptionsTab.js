@@ -16,6 +16,7 @@ export default function SubscriptionsTab() {
 
   const fetchSubscriptions = async () => {
     try {
+      setLoading(true);
       const response = await fetch('/api/subscriptions');
       if (!response.ok) {
         throw new Error('Failed to fetch subscriptions');
@@ -31,7 +32,7 @@ export default function SubscriptionsTab() {
   };
 
   if (loading) return <div>Loading subscriptions...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div>Error loading subscriptions. Please try again later.</div>;
 
   return (
     <div className="space-y-4">
