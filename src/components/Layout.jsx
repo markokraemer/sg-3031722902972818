@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 
 export default function Layout({ children }) {
@@ -17,9 +17,16 @@ export default function Layout({ children }) {
               Create
             </Link>
             {session ? (
-              <Button onClick={() => signOut()} variant="outline">Sign out</Button>
+              <>
+                <Link href={`/profile/${session.user.id}`} className="text-gray-600 hover:text-primary">
+                  Profile
+                </Link>
+                <Button onClick={() => signOut()} variant="outline">Sign out</Button>
+              </>
             ) : (
-              <Button onClick={() => signIn('google')}>Sign in</Button>
+              <Link href="/signin">
+                <Button>Sign in</Button>
+              </Link>
             )}
           </nav>
         </div>
