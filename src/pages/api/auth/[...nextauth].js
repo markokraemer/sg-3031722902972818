@@ -36,16 +36,14 @@ export default NextAuth({
   },
   debug: process.env.NODE_ENV === 'development',
   logger: {
-    error(code, metadata) {
-      console.error('NextAuth error:', code, metadata);
+    error(code, ...message) {
+      console.error(code, ...message);
     },
-    warn(code) {
-      console.warn('NextAuth warning:', code);
+    warn(code, ...message) {
+      console.warn(code, ...message);
     },
-    debug(code, metadata) {
-      if (process.env.NODE_ENV === 'development') {
-        console.debug('NextAuth debug:', code, metadata);
-      }
+    debug(code, ...message) {
+      console.debug(code, ...message);
     },
   },
 });

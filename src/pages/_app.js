@@ -14,7 +14,7 @@ function LoadingFallback() {
   );
 }
 
-export default function App({ Component, pageProps: { session, ...pageProps } }) {
+export default function App({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(true);
   const [serverStatus, setServerStatus] = useState(null);
 
@@ -60,7 +60,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } })
 
   return (
     <ErrorBoundary>
-      <SessionProvider session={session}>
+      <SessionProvider session={pageProps.session}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Layout>
             <Component {...pageProps} />
