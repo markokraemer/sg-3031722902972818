@@ -25,7 +25,11 @@ export default async function handler(req, res) {
       res.status(200).json({ clientSecret: paymentIntent.client_secret });
     } catch (err) {
       console.error('Error creating payment intent:', err);
-      res.status(500).json({ error: 'Error creating payment intent', details: err.message });
+      if (err.type === 'StripeAuthenticationError') {
+        res.status(401).json({ error: 'Authentication with Stripe failed. Please check your Stripe secret key.' });
+      } else {
+        res.status(500).json({ error: 'Error creating payment intent', details: err.message });
+      }
     }
   } else {
     res.setHeader('Allow', 'POST');

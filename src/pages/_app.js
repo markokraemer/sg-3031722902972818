@@ -29,13 +29,36 @@ function LoadingFallback() {
 
 export default function App({ Component, pageProps: { session, ...pageProps } }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [serverStatus, setServerStatus] = useState(null);
 
   useEffect(() => {
-    setIsLoading(false);
+    async function checkServerStatus() {
+      try {
+        const res = await fetch('/api/server-status');
+        const data = await res.json();
+        setServerStatus(data.status);
+      } catch (error) {
+        console.error('Error checking server status:', error);
+        setServerStatus('Error');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    checkServerStatus();
   }, []);
 
   if (isLoading) {
     return <LoadingFallback />;
+  }
+
+  if (serverStatus !== 'OK') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <h1 className="text-4xl font-bold mb-4">Server Error</h1>
+        <p className="text-xl mb-8">Unable to connect to the server. Please try again later.</p>
+      </div>
+    );
   }
 
   return (

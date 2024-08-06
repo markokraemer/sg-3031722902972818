@@ -55,4 +55,17 @@ export default NextAuth({
     signIn: '/signin',
   },
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      console.error(code, metadata);
+    },
+    warn(code) {
+      console.warn(code);
+    },
+    debug(code, metadata) {
+      if (process.env.NODE_ENV === 'development') {
+        console.debug(code, metadata);
+      }
+    },
+  },
 });

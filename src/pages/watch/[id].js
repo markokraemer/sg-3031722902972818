@@ -91,8 +91,8 @@ export default function WatchPage() {
         </div>
       </div>
       <div className="flex justify-between items-center">
-        <Link href={`/profile/${video.creator.id}`}>
-          <a className="text-blue-500 hover:underline">Creator: {video.creator.name}</a>
+        <Link href={`/profile/${video.creator.id}`} className="text-blue-500 hover:underline">
+          Creator: {video.creator.name}
         </Link>
         <Button onClick={handleSubscribe} disabled={isSubscribed}>
           {isSubscribed ? 'Subscribed' : 'Subscribe'}
